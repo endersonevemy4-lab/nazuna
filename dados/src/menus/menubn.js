@@ -1,4 +1,4 @@
-async function menubn(prefix, botName = "MeuBot", userName = "Usuário", isLiteMode = false, {
+export default async function menubn(prefix, botName = "MeuBot", userName = "Usuário", isLiteMode = false, {
     header = `╭┈⊰ 🌸 『 *${botName}* 』\n┊Olá, #user#!\n╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯`,
     menuTopBorder = "╭┈",
     bottomBorder = "╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯",
@@ -382,5 +382,3 @@ ${bottomBorder}
 `;
     return menuContent;
 }
-module.exports = menubn;
-    
