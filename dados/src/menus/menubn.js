@@ -10,6 +10,7 @@ export default async function menubn(prefix, botName = "MeuBot", userName = "Usu
     phrasesMenuTitle = "💬 FRASES & TEXTOS 📜",
     interactionsMenuTitle = "💬 INTERAÇÕES SOCIAIS 🤝",
     relationshipMenuTitle = "💞 RELACIONAMENTOS ❤️",
+    hotInteractionsMenuTitle = '🔥 INTERAÇÕES "PICANTES" 😏',
     maleFunMenuTitle = "🎯 BRINCADEIRAS MASCULINAS 🔥",
     femaleFunMenuTitle = "💅 BRINCADEIRAS FEMININAS 👸",
     maleRanksMenuTitle = "🏆 RANKINGS MASCULINOS 👑",
@@ -84,6 +85,22 @@ ${middleBorder}${menuItemIcon}${prefix}matar
 ${middleBorder}${menuItemIcon}${prefix}cafune
 ${bottomBorder}
 `;
+    if (!isLiteMode) {
+        menuContent += `
+${menuTopBorder}${separatorIcon} *${hotInteractionsMenuTitle}*
+${middleBorder}
+${middleBorder}${menuItemIcon}${prefix}surubao
+${middleBorder}${menuItemIcon}${prefix}sexo
+${middleBorder}${menuItemIcon}${prefix}beijob
+${middleBorder}${menuItemIcon}${prefix}beijarb
+${middleBorder}${menuItemIcon}${prefix}tapar
+${middleBorder}${menuItemIcon}${prefix}goza
+${middleBorder}${menuItemIcon}${prefix}gozar
+${middleBorder}${menuItemIcon}${prefix}mamar
+${middleBorder}${menuItemIcon}${prefix}mamada
+${bottomBorder}
+`;
+    }
     menuContent += `
 ${menuTopBorder}${separatorIcon} *${maleFunMenuTitle}*
 ${middleBorder}
@@ -96,7 +113,7 @@ ${middleBorder}${menuItemIcon}${prefix}gado
 ${middleBorder}${menuItemIcon}${prefix}gostoso
 ${middleBorder}${menuItemIcon}${prefix}feio
 ${middleBorder}${menuItemIcon}${prefix}rico
-${middleBorder}${menuItemIcon}${prefix}pobre${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}pirocudo${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}nazista`}${isLiteMo[...]
+${middleBorder}${menuItemIcon}${prefix}pobre${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}pirocudo${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}nazista`}${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}ladrao`}`}
 ${middleBorder}${menuItemIcon}${prefix}safado
 ${middleBorder}${menuItemIcon}${prefix}vesgo
 
@@ -110,7 +127,7 @@ ${middleBorder}${menuItemIcon}${prefix}terminar
 ${middleBorder}${menuItemIcon}${prefix}trair
 ${middleBorder}${menuItemIcon}${prefix}historicotraicao
 ${bottomBorder}
-${middleBorder}${menuItemIcon}${prefix}bebado${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}machista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}homofobico${isLite[...]
+${middleBorder}${menuItemIcon}${prefix}bebado${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}machista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}homofobico${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}racista`}`}`}
 ${middleBorder}${menuItemIcon}${prefix}chato
 ${middleBorder}${menuItemIcon}${prefix}sortudo
 ${middleBorder}${menuItemIcon}${prefix}azarado
@@ -138,7 +155,7 @@ ${middleBorder}${menuItemIcon}${prefix}corajoso
 ${middleBorder}${menuItemIcon}${prefix}covarde
 ${middleBorder}${menuItemIcon}${prefix}esperto${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}talarico`}
 ${middleBorder}${menuItemIcon}${prefix}chorao
-${middleBorder}${menuItemIcon}${prefix}brincalhao${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bolsonarista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}petista${i[...]
+${middleBorder}${menuItemIcon}${prefix}brincalhao${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bolsonarista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}petista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}comunista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}lulista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}traidor${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bandido${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}cachorro${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}vagabundo${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}pilantra`}`}`}`}`}`}`}`}`}
 ${middleBorder}${menuItemIcon}${prefix}mito
 ${middleBorder}${menuItemIcon}${prefix}padrao
 ${middleBorder}${menuItemIcon}${prefix}comedia${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}psicopata`}
@@ -210,10 +227,10 @@ ${middleBorder}${menuItemIcon}${prefix}gada
 ${middleBorder}${menuItemIcon}${prefix}gostosa
 ${middleBorder}${menuItemIcon}${prefix}feia
 ${middleBorder}${menuItemIcon}${prefix}rica
-${middleBorder}${menuItemIcon}${prefix}pobre${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bucetuda${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}nazista${isLiteMode[...]
+${middleBorder}${menuItemIcon}${prefix}pobre${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bucetuda${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}nazista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}ladra`}`}`}
 ${middleBorder}${menuItemIcon}${prefix}safada
 ${middleBorder}${menuItemIcon}${prefix}vesga
-${middleBorder}${menuItemIcon}${prefix}bebada${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}machista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}homofobica${isLite[...]
+${middleBorder}${menuItemIcon}${prefix}bebada${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}machista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}homofobica${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}racista`}`}`}
 ${middleBorder}${menuItemIcon}${prefix}chata
 ${middleBorder}${menuItemIcon}${prefix}sortuda
 ${middleBorder}${menuItemIcon}${prefix}azarada
@@ -240,7 +257,7 @@ ${middleBorder}${menuItemIcon}${prefix}corajosa
 ${middleBorder}${menuItemIcon}${prefix}covarde
 ${middleBorder}${menuItemIcon}${prefix}esperta${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}talarica`}
 ${middleBorder}${menuItemIcon}${prefix}chorona
-${middleBorder}${menuItemIcon}${prefix}brincalhona${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bolsonarista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}petista${[...]
+${middleBorder}${menuItemIcon}${prefix}brincalhona${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bolsonarista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}petista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}comunista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}lulista${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}traidora${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}bandida${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}cachorra${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}vagabunda${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}pilantra`}`}`}`}`}`}`}`}`}
 ${middleBorder}${menuItemIcon}${prefix}mito
 ${middleBorder}${menuItemIcon}${prefix}padrao
 ${middleBorder}${menuItemIcon}${prefix}comedia${isLiteMode ? '' : `\n${middleBorder}${menuItemIcon}${prefix}psicopata`}
@@ -381,5 +398,4 @@ ${middleBorder}${menuItemIcon}${prefix}rankvencedora
 ${bottomBorder}
 `;
     return menuContent;
-    }
-    
+}
