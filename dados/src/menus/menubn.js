@@ -10,7 +10,6 @@ export default async function menubn(prefix, botName = "MeuBot", userName = "Usu
     phrasesMenuTitle = "💬 FRASES & TEXTOS 📜",
     interactionsMenuTitle = "💬 INTERAÇÕES SOCIAIS 🤝",
     relationshipMenuTitle = "💞 RELACIONAMENTOS ❤️",
-    hotInteractionsMenuTitle = '🔥 INTERAÇÕES "PICANTES" 😏',
     maleFunMenuTitle = "🎯 BRINCADEIRAS MASCULINAS 🔥",
     femaleFunMenuTitle = "💅 BRINCADEIRAS FEMININAS 👸",
     maleRanksMenuTitle = "🏆 RANKINGS MASCULINOS 👑",
@@ -85,22 +84,6 @@ ${middleBorder}${menuItemIcon}${prefix}matar
 ${middleBorder}${menuItemIcon}${prefix}cafune
 ${bottomBorder}
 `;
-    if (!isLiteMode) {
-        menuContent += `
-${menuTopBorder}${separatorIcon} *${hotInteractionsMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}surubao
-${middleBorder}${menuItemIcon}${prefix}sexo
-${middleBorder}${menuItemIcon}${prefix}beijob
-${middleBorder}${menuItemIcon}${prefix}beijarb
-${middleBorder}${menuItemIcon}${prefix}tapar
-${middleBorder}${menuItemIcon}${prefix}goza
-${middleBorder}${menuItemIcon}${prefix}gozar
-${middleBorder}${menuItemIcon}${prefix}mamar
-${middleBorder}${menuItemIcon}${prefix}mamada
-${bottomBorder}
-`;
-    }
     menuContent += `
 ${menuTopBorder}${separatorIcon} *${maleFunMenuTitle}*
 ${middleBorder}
