@@ -47,12 +47,10 @@ ${middleBorder}${menuItemIcon}${prefix}galaxy
 ${middleBorder}${menuItemIcon}${prefix}glossy
 ${middleBorder}${menuItemIcon}${prefix}dragonfire
 ${middleBorder}${menuItemIcon}${prefix}pubgavatar
-${middleBorder}${menuItemIcon}${prefix}comics
 ${bottomBorder}
 
 ${menuTopBorder}${separatorIcon} *${Logos2txtTitle}*
 ${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}pornhub
 ${middleBorder}${menuItemIcon}${prefix}avengers
 ${middleBorder}${menuItemIcon}${prefix}graffiti
 ${middleBorder}${menuItemIcon}${prefix}captainamerica
