@@ -23215,8 +23215,7 @@ ${prefix}togglecmdvip premium_ia off`);
       case 'galaxy':
       case 'glossy':
       case 'dragonfire':
-      case 'pubgavatar':
-      case 'comics':
+      case 'pubgavatar':
         try {
           if (!q) return reply(`❌ Cadê o texto?\nExemplo: .${command} Olá Mundo`);
 
@@ -23245,8 +23244,7 @@ ${prefix}togglecmdvip premium_ia off`);
           console.error(`Erro no comando ${command}:`, e);
           await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
         }
-        break;
-      case 'pornhub':
+        break;
       case 'avengers':
       case 'graffiti':
       case 'captainamerica':
