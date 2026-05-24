@@ -5,7 +5,6 @@ import { promisify } from 'util'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import ytSearch from 'yt-search'
-import ytdl from '@distube/ytdl-core'
 
 const execAsync = promisify(exec)
 
@@ -24,6 +23,17 @@ function downloadFile(url) {
       res.on('end', () => resolve(Buffer.concat(chunks)))
     }).on('error', reject)
   })
+}
+
+async function getYtDlpPath() {
+  const paths = ['yt-dlp', 'yt_dlp', '/usr/local/bin/yt-dlp', '/usr/bin/yt-dlp']
+  for (const p of paths) {
+    try {
+      await execAsync(`${p} --version`)
+      return p
+    } catch {}
+  }
+  return null
 }
 
 async function search(query) {
@@ -58,84 +68,83 @@ async function search(query) {
 }
 
 async function mp3(url) {
-  const tmpInput = join(tmpdir(), `nazu_audio_${Date.now()}.webm`)
-  const tmpOutput = join(tmpdir(), `nazu_audio_${Date.now()}.mp3`)
+  const tmpOutput = join(tmpdir(), `nazu_audio_${Date.now()}`)
 
   try {
-    const info = await ytdl.getInfo(url)
-    const videoDetails = info.videoDetails
+    const ytdlp = await getYtDlpPath()
+    if (!ytdlp) {
+      return { ok: false, msg: '❌ yt-dlp não encontrado. Instale com: pip install yt-dlp' }
+    }
 
-    if (parseInt(videoDetails.lengthSeconds) > 1800) {
+    const infoJson = await execAsync(`${ytdlp} --dump-json --no-playlist "${url}"`)
+    const info = JSON.parse(infoJson.stdout)
+
+    if (info.duration > 1800) {
       return { ok: false, msg: '⚠️ Vídeo muito longo. Máximo de 30 minutos.' }
     }
 
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' })
+    await execAsync(
+      `${ytdlp} -x --audio-format mp3 --audio-quality 128K --no-playlist -o "${tmpOutput}.%(ext)s" "${url}"`,
+      { maxBuffer: 100 * 1024 * 1024 }
+    )
 
-    const chunks = []
-    await new Promise((resolve, reject) => {
-      const stream = ytdl.downloadFromInfo(info, { format })
-      stream.on('data', chunk => chunks.push(chunk))
-      stream.on('end', resolve)
-      stream.on('error', reject)
-    })
-
-    fs.writeFileSync(tmpInput, Buffer.concat(chunks))
-
-    await execAsync(`ffmpeg -y -i "${tmpInput}" -vn -ab 128k -ar 44100 "${tmpOutput}"`)
-
-    const buffer = fs.readFileSync(tmpOutput)
-    const title = videoDetails.title || 'YouTube Audio'
+    const mp3File = `${tmpOutput}.mp3`
+    const buffer = fs.readFileSync(mp3File)
+    const title = info.title || 'YouTube Audio'
 
     return {
       ok: true,
       buffer,
       title,
-      thumbnail: videoDetails.thumbnails?.[videoDetails.thumbnails.length - 1]?.url || '',
+      thumbnail: info.thumbnail || '',
       filename: `${title.replace(/[^\w\s]/gi, '')}.mp3`
     }
   } catch (err) {
     return { ok: false, msg: err.message }
   } finally {
-    try { fs.unlinkSync(tmpInput) } catch {}
-    try { fs.unlinkSync(tmpOutput) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.mp3`) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.webm`) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.m4a`) } catch {}
   }
 }
 
 async function mp4(url) {
-  const tmpOutput = join(tmpdir(), `nazu_video_${Date.now()}.mp4`)
+  const tmpOutput = join(tmpdir(), `nazu_video_${Date.now()}`)
 
   try {
-    const info = await ytdl.getInfo(url)
-    const videoDetails = info.videoDetails
+    const ytdlp = await getYtDlpPath()
+    if (!ytdlp) {
+      return { ok: false, msg: '❌ yt-dlp não encontrado. Instale com: pip install yt-dlp' }
+    }
 
-    if (parseInt(videoDetails.lengthSeconds) > 600) {
+    const infoJson = await execAsync(`${ytdlp} --dump-json --no-playlist "${url}"`)
+    const info = JSON.parse(infoJson.stdout)
+
+    if (info.duration > 600) {
       return { ok: false, msg: '⚠️ Vídeo muito longo. Máximo de 10 minutos para vídeo.' }
     }
 
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' })
+    await execAsync(
+      `${ytdlp} -f "best[ext=mp4]/best" --no-playlist -o "${tmpOutput}.%(ext)s" "${url}"`,
+      { maxBuffer: 100 * 1024 * 1024 }
+    )
 
-    const chunks = []
-    await new Promise((resolve, reject) => {
-      const stream = ytdl.downloadFromInfo(info, { format })
-      stream.on('data', chunk => chunks.push(chunk))
-      stream.on('end', resolve)
-      stream.on('error', reject)
-    })
-
-    const buffer = Buffer.concat(chunks)
-    const title = videoDetails.title || 'YouTube Video'
+    const mp4File = `${tmpOutput}.mp4`
+    const buffer = fs.readFileSync(mp4File)
+    const title = info.title || 'YouTube Video'
 
     return {
       ok: true,
       buffer,
       title,
-      thumbnail: videoDetails.thumbnails?.[videoDetails.thumbnails.length - 1]?.url || '',
+      thumbnail: info.thumbnail || '',
       filename: `${title.replace(/[^\w\s]/gi, '')}.mp4`
     }
   } catch (err) {
     return { ok: false, msg: err.message }
   } finally {
-    try { fs.unlinkSync(tmpOutput) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.mp4`) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.webm`) } catch {}
   }
 }
 
