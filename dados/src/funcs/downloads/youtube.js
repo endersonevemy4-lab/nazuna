@@ -1,26 +1,13 @@
 import https from 'https'
 import fs from 'fs'
-import verificarAPI from '../API.js'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import ytSearch from 'yt-search'
+import ytdl from '@distube/ytdl-core'
 
-const CONFIG_FILE = JSON.parse(
-  fs.readFileSync(new URL('../../config.json', import.meta.url), 'utf8')
-)
-
-function request(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let data = ''
-      res.on('data', chunk => data += chunk)
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data))
-        } catch {
-          reject(new Error('Resposta inválida da API'))
-        }
-      })
-    }).on('error', reject)
-  })
-}
+const execAsync = promisify(exec)
 
 function downloadFile(url) {
   return new Promise((resolve, reject) => {
@@ -40,29 +27,15 @@ function downloadFile(url) {
 }
 
 async function search(query) {
-  const checkAPI = await verificarAPI()
-  if (checkAPI !== true) return { ok: false, msg: checkAPI }
-
   try {
-    const { apikey_vex, site_vex } = CONFIG_FILE
-    const url = `${site_vex}/api/pesquisa/youtube?apikey=${apikey_vex}&query=${encodeURIComponent(query)}`
+    const result = await ytSearch(query)
+    const videos = result.videos
 
-    const data = await request(url)
-
-
-    const checkAfter = await verificarAPI(data)
-    if (checkAfter !== true) return { ok: false, msg: checkAfter }
-
-    if (!data?.status) {
-      throw new Error('Erro ao buscar vídeo')
-    }
-
-    const results = data.results
-    if (!results || results.length === 0) {
+    if (!videos || videos.length === 0) {
       return { ok: false, msg: 'Nenhum vídeo encontrado' }
     }
 
-    const video = results[0]
+    const video = videos[0]
 
     return {
       ok: true,
@@ -70,88 +43,99 @@ async function search(query) {
         videoId: video.videoId,
         url: video.url,
         title: video.title,
-        description: video.description,
+        description: video.description || '',
         thumbnail: video.thumbnail,
         seconds: video.seconds,
         timestamp: video.timestamp,
         views: video.views,
         ago: video.ago,
-        author: video.author?.name
+        author: { name: video.author?.name || video.author || '' }
       }
     }
-
   } catch (err) {
     return { ok: false, msg: err.message }
   }
 }
 
 async function mp3(url) {
-  const checkAPI = await verificarAPI()
-  if (checkAPI !== true) return { ok: false, msg: checkAPI }
+  const tmpInput = join(tmpdir(), `nazu_audio_${Date.now()}.webm`)
+  const tmpOutput = join(tmpdir(), `nazu_audio_${Date.now()}.mp3`)
 
   try {
-    const { apikey_vex, site_vex } = CONFIG_FILE
-    const api = `${site_vex}/api/downloads/youtubemp3?apikey=${apikey_vex}&query=${encodeURIComponent(url)}`
-    
-    const data = await request(api)
+    const info = await ytdl.getInfo(url)
+    const videoDetails = info.videoDetails
 
-
-    const checkAfter = await verificarAPI(data)
-    if (checkAfter !== true) return { ok: false, msg: checkAfter }
-
-    const resposta = data?.resposta
-
-    if (!resposta?.dlurl) {
-      throw new Error('URL de download não encontrada')
+    if (parseInt(videoDetails.lengthSeconds) > 1800) {
+      return { ok: false, msg: '⚠️ Vídeo muito longo. Máximo de 30 minutos.' }
     }
 
-    const buffer = await downloadFile(resposta.dlurl)
+    const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' })
+
+    const chunks = []
+    await new Promise((resolve, reject) => {
+      const stream = ytdl.downloadFromInfo(info, { format })
+      stream.on('data', chunk => chunks.push(chunk))
+      stream.on('end', resolve)
+      stream.on('error', reject)
+    })
+
+    fs.writeFileSync(tmpInput, Buffer.concat(chunks))
+
+    await execAsync(`ffmpeg -y -i "${tmpInput}" -vn -ab 128k -ar 44100 "${tmpOutput}"`)
+
+    const buffer = fs.readFileSync(tmpOutput)
+    const title = videoDetails.title || 'YouTube Audio'
 
     return {
       ok: true,
       buffer,
-      title: resposta.title || 'YouTube Audio',
-      thumbnail: resposta.thumbnail || '',
-      filename: `${(resposta.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
+      title,
+      thumbnail: videoDetails.thumbnails?.[videoDetails.thumbnails.length - 1]?.url || '',
+      filename: `${title.replace(/[^\w\s]/gi, '')}.mp3`
     }
-
   } catch (err) {
     return { ok: false, msg: err.message }
+  } finally {
+    try { fs.unlinkSync(tmpInput) } catch {}
+    try { fs.unlinkSync(tmpOutput) } catch {}
   }
 }
 
 async function mp4(url) {
-  const checkAPI = await verificarAPI()
-  if (checkAPI !== true) return { ok: false, msg: checkAPI }
+  const tmpOutput = join(tmpdir(), `nazu_video_${Date.now()}.mp4`)
 
   try {
-    const { apikey_vex, site_vex } = CONFIG_FILE
-    const api = `${site_vex}/api/downloads/youtubemp4?apikey=${apikey_vex}&query=${encodeURIComponent(url)}`
-    
-    const data = await request(api)
+    const info = await ytdl.getInfo(url)
+    const videoDetails = info.videoDetails
 
-
-    const checkAfter = await verificarAPI(data)
-    if (checkAfter !== true) return { ok: false, msg: checkAfter }
-
-    const resposta = data?.resposta
-
-    if (!resposta?.dlurl) {
-      throw new Error('URL de download não encontrada')
+    if (parseInt(videoDetails.lengthSeconds) > 600) {
+      return { ok: false, msg: '⚠️ Vídeo muito longo. Máximo de 10 minutos para vídeo.' }
     }
 
-    const buffer = await downloadFile(resposta.dlurl)
+    const format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' })
+
+    const chunks = []
+    await new Promise((resolve, reject) => {
+      const stream = ytdl.downloadFromInfo(info, { format })
+      stream.on('data', chunk => chunks.push(chunk))
+      stream.on('end', resolve)
+      stream.on('error', reject)
+    })
+
+    const buffer = Buffer.concat(chunks)
+    const title = videoDetails.title || 'YouTube Video'
 
     return {
       ok: true,
       buffer,
-      title: resposta.title || 'YouTube Video',
-      thumbnail: resposta.thumbnail || '',
-      filename: `${(resposta.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
+      title,
+      thumbnail: videoDetails.thumbnails?.[videoDetails.thumbnails.length - 1]?.url || '',
+      filename: `${title.replace(/[^\w\s]/gi, '')}.mp4`
     }
-
   } catch (err) {
     return { ok: false, msg: err.message }
+  } finally {
+    try { fs.unlinkSync(tmpOutput) } catch {}
   }
 }
 
