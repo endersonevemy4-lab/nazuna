@@ -19351,6 +19351,29 @@ case 'pin':
         }
         break;
 
+      case 'igstory':
+        try {
+          if (!q) return reply(`Digite um link do Instagram.
+> Ex: ${prefix}${command} https://www.instagram.com/reel/DFaq_X7uoiT/`);
+          reply('Aguarde um momentinho... ☀️');
+          igdl.dl(q)
+            .then(async (datinha) => {
+              if (!datinha.ok) return reply(datinha.msg);
+              for (const item of datinha.data) {
+                await nazu.sendMessage(from, { [item.type]: { url: item.url } }, { quoted: info });
+              }
+            })
+            .catch(async (e) => {
+              console.error('Erro no igstory:', e);
+              reply('❌ Ocorreu um erro. Tente novamente.');
+            });
+          return;
+        } catch (e) {
+          console.error('Erro no igstory:', e);
+          reply('❌ Ocorreu um erro. Tente novamente.');
+        }
+        break;
+
       case 'instagram':
       case 'igdl':
       case 'ig':
