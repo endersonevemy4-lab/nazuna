@@ -27390,7 +27390,7 @@ Exemplos:
 
 
 
-      case 'set-bannnerbv': {
+      case 'set-bannerbv': {
         if (!isGroup) return reply("isso só pode ser usado em grupo 💔");
         if (!isGroupAdmin) return reply("você precisa ser adm 💔");
 
@@ -27411,7 +27411,7 @@ Exemplos:
 
 
           if (!isQuotedImage && !isImage) {
-            return reply(`📌 Marque ou envie uma imagem\n\nEx: ${prefix}set-bannnerbv`);
+            return reply(`📌 Marque ou envie uma imagem\n\nEx: ${prefix}set-bannerbv`);
           }
 
 
