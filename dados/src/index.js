@@ -29002,6 +29002,86 @@ Use ${prefix}inventario para ver seus itens!`);
         return reply(reportsData);
         break;
 
+
+      // ═══════════════════════════════════════════════════════════════
+      // FREE FIRE - Likes e Info
+      // ═══════════════════════════════════════════════════════════════
+      case 'likeff': {
+        const { freefire } = modules;
+        if (!freefire) return reply('❌ Serviço Free Fire indisponível.');
+        const uid = q?.trim();
+        if (!uid) return reply(`🎮 *Like FF*
+
+Envie likes para seu perfil!
+
+Uso: ${prefix}likeff <UID>
+Ex: ${prefix}likeff 123456789`);
+        await reply('⏳ Enviando likes... aguarde!');
+        try {
+          const res = await freefire.sendLikes(uid);
+          if (!res.ok) return reply(`❌ ${res.msg}`);
+          return reply(
+            `🎮 *Likes enviados com sucesso!*
+
+` +
+            `👤 Jogador: ${res.player}
+` +
+            `🆔 UID: ${res.uid}
+` +
+            `🌎 Região: ${res.region}
+` +
+            `⭐ Nível: ${res.level}
+` +
+            `❤️ Likes antes: ${res.initialLikes}
+` +
+            `💖 Likes depois: ${res.finalLikes}
+` +
+            `✅ Likes enviados: ${res.likesAdded}`
+          );
+        } catch (e) {
+          console.error('Erro likeff:', e);
+          return reply('❌ Erro ao enviar likes. Tente novamente.');
+        }
+      }
+
+      case 'infoff': {
+        const { freefire } = modules;
+        if (!freefire) return reply('❌ Serviço Free Fire indisponível.');
+        const uid = q?.trim();
+        if (!uid) return reply(`🎮 *Info FF*
+
+Veja as informações de um jogador!
+
+Uso: ${prefix}infoff <UID>
+Ex: ${prefix}infoff 123456789`);
+        await reply('⏳ Buscando informações... aguarde!');
+        try {
+          const res = await freefire.getPlayerInfo(uid);
+          if (!res.ok) return reply(`❌ ${res.msg}`);
+          return reply(
+            `🎮 *Informações do Jogador*
+
+` +
+            `👤 Nick: ${res.player}
+` +
+            `🆔 UID: ${res.uid}
+` +
+            `🌎 Região: ${res.region}
+` +
+            `⭐ Nível: ${res.level}
+` +
+            `💫 EXP: ${res.exp}
+` +
+            `❤️ Likes: ${res.likes}
+` +
+            `🏆 Rank: ${res.rank}`
+          );
+        } catch (e) {
+          console.error('Erro infoff:', e);
+          return reply('❌ Erro ao buscar informações. Tente novamente.');
+        }
+      }
+
       // ═══════════════════════════════════════════════════════════════
       // QR CODE - Gerar e ler (modo brincadeira)
       // ═══════════════════════════════════════════════════════════════
