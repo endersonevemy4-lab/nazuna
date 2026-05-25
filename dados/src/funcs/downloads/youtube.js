@@ -33,6 +33,14 @@ async function getYtDlpPath() {
       return p
     } catch {}
   }
+  try {
+    const { stdout } = await execAsync('find /nix/store -name "yt-dlp" -type f 2>/dev/null | head -1')
+    const nixPath = stdout.trim()
+    if (nixPath) {
+      await execAsync(`${nixPath} --version`)
+      return nixPath
+    }
+  } catch {}
   return null
 }
 
