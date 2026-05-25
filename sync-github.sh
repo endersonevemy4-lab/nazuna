@@ -18,12 +18,17 @@ git add -A
 
 STATUS=$(git status --porcelain)
 
-if [ -z "$STATUS" ]; then
-  echo "✅ Nenhuma alteração para enviar."
-else
+if [ -n "$STATUS" ]; then
   TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
   git commit -m "sync: atualização automática - $TIMESTAMP"
-  echo "📤 Enviando para o GitHub..."
+fi
+
+AHEAD=$(git rev-list origin/main..HEAD --count 2>/dev/null || echo "0")
+
+if [ "$AHEAD" -gt "0" ]; then
+  echo "📤 Enviando $AHEAD commit(s) para o GitHub..."
   git push origin main
   echo "✅ GitHub atualizado com sucesso!"
+else
+  echo "✅ GitHub já está atualizado."
 fi
