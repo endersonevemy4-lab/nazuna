@@ -7,3 +7,6 @@ temp/
 logs/
 cache/
 dados/backup/
+attached_assets/
+.replit
+replit.nix

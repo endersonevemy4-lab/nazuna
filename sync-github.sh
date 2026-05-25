@@ -12,6 +12,8 @@ git remote set-url origin "$REPO_URL"
 echo "🔄 Verificando alterações..."
 
 git rm --cached package-lock.json yarn.lock 2>/dev/null || true
+git rm -r --cached attached_assets/ 2>/dev/null || true
+git rm --cached .replit replit.nix 2>/dev/null || true
 git add -A
 
 STATUS=$(git status --porcelain)
