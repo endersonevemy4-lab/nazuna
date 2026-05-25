@@ -30504,51 +30504,6 @@ ${nivelSorte >= 70 ? '🎉 Hoje é seu dia de sorte!' : nivelSorte >= 40 ? '🤔
           await reply("❌ Ocorreu um erro ao buscar o fato.");
         }
         break;
-      case 'surubao':
-      case 'suruba':
-        try {
-          if (isModoLite) return nazu.react('❌', {
-            key: info.key
-          });
-          if (!isGroup) return reply(`Apenas em grupos`);
-          if (!isModoBn) return reply('O modo brincadeira nao esta ativo no grupo');
-          if (!q) return reply(`Eita, coloque o número de pessoas após o comando.`);
-          if (Number(q) > 15) return reply("Coloque um número menor, ou seja, abaixo de *15*.");
-          var emojiskk;
-          emojiskk = ["🥵", "😈", "🫣", "😏"];
-          var emojis2;
-          emojis2 = emojiskk[Math.floor(Math.random() * emojiskk.length)];
-          var frasekk;
-          frasekk = [`tá querendo relações sexuais a ${q}, topa?`, `quer que *${q}* pessoas venham de *chicote, algema e corda de alpinista*.`, `quer que ${q} pessoas der tapa na cara, lhe chame de cachorra e fud3r bem gostosinho...`];
-          let path = buildGroupFilePath(from);
-          // Otimização: Usar cache para leitura de arquivo
-          let data = await optimizer.loadJsonWithCache(path, { mark: {} });
-          let membros = AllgroupMembers.filter(m => !['0', 'marca'].includes(data.mark[m]));
-          var context;
-          context = frasekk[Math.floor(Math.random() * frasekk.length)];
-          var ABC;
-          ABC = `${emojis2} @${getUserName(sender)} ${context}\n\n`;
-          var mencts;
-          mencts = [sender];
-          for (var i = 0; i < q; i++) {
-            var menb;
-            menb = membros[Math.floor(Math.random() * membros.length)];
-            var ABC;
-            ABC += `@${menb.split("@")[0]}\n`;
-            mencts.push(menb);
-          }
-          await nazu.sendMessage(from, {
-            image: {
-              url: 'https://raw.githubusercontent.com/nazuninha/uploads/main/outros/1747545773146_rrv7of.bin'
-            },
-            caption: ABC,
-            mentions: mencts
-          });
-        } catch (e) {
-          console.error(e);
-          await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
-        }
-        break;
       case 'suicidio':
         if (isGroupAdmin) return reply("❌ Awn, admin, você é precioso demais para isso. Fica aqui com a gente, tá? <3");
         if (!isBotAdmin) return reply("❌ Preciso ser admin para fazer isso.");
@@ -30577,8 +30532,6 @@ ${nivelSorte >= 70 ? '🎉 Hoje é seu dia de sorte!' : nivelSorte >= 40 ? '🤔
       case 'feio':
       case 'rico':
       case 'pobre':
-      case 'pirocudo':
-      case 'pirokudo':
       case 'nazista':
       case 'ladrao':
       case 'safado':
@@ -31058,24 +31011,16 @@ ${nivelSorte >= 70 ? '🎉 Hoje é seu dia de sorte!' : nivelSorte >= 40 ? '🤔
       case 'socar':
       case 'beijo':
       case 'beijar':
-      case 'beijob':
-      case 'beijarb':
       case 'abraco':
       case 'abracar':
       case 'mata':
       case 'matar':
-      case 'tapar':
-      case 'goza':
-      case 'gozar':
-      case 'mamar':
-      case 'mamada':
       case 'cafune':
       case 'morder':
       case 'mordida':
       case 'lamber':
       case 'lambida':
       case 'explodir':
-      case 'sexo':
       case 'tomate':
         try {
           const comandosImpróprios = ['sexo', 'surubao', 'goza', 'gozar', 'mamar', 'mamada', 'beijob', 'beijarb', 'tapar'];
