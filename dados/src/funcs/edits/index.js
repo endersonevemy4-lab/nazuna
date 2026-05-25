@@ -1,96 +1,106 @@
-import https from 'https';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import verificarAPI from '../API.js';
-
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-const CONFIG_FILE = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8')
-);
-
-
-const cache = new Map();
-const CACHE_TTL = 60 * 60 * 1000;
-
-function getCached(key) {
-  const item = cache.get(key);
-  if (!item) return null;
-
-  if (Date.now() - item.ts > CACHE_TTL) {
-    cache.delete(key);
-    return null;
-  }
-
-  return item.val;
-}
-
-function setCache(key, val) {
-  if (cache.size >= 1000) {
-    const oldest = cache.keys().next().value;
-    cache.delete(oldest);
-  }
-  cache.set(key, { val, ts: Date.now() });
-}
-
-
-function requestBuffer(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      if (res.statusCode !== 200) {
-        return reject(new Error(`HTTP ${res.statusCode}`));
-      }
-
-      const chunks = [];
-
-      res.on('data', chunk => chunks.push(chunk));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
-    }).on('error', reject);
-  });
-}
-
-
 async function geraredit({ query, type }) {
-  const checkAPI = await verificarAPI();
-  if (checkAPI !== true) return { ok: false, msg: checkAPI };
-
   try {
     if (!query || !type) {
       return { ok: false, msg: '❌ Parâmetros obrigatórios não informados.' };
     }
 
-    const cacheKey = `edit:${type}:${query}`;
-    const cached = getCached(cacheKey);
-    if (cached) return { ok: true, ...cached, cached: true };
+    let inputBuffer;
 
-    const { apikey_vex, site_vex } = CONFIG_FILE;
-
-    const url = `${site_vex}/api/edits/${encodeURIComponent(type)}?apikey=${apikey_vex}&query=${encodeURIComponent(query)}`;
-
-
-    const apiCheck = await verificarAPI();
-    if (apiCheck !== true) {
-      return { ok: false, msg: apiCheck };
+    if (Buffer.isBuffer(query)) {
+      inputBuffer = query;
+    } else if (typeof query === 'string' && query.startsWith('http')) {
+      const { default: https } = await import('https');
+      inputBuffer = await new Promise((resolve, reject) => {
+        https.get(query, res => {
+          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+            https.get(res.headers.location, res2 => {
+              const chunks = [];
+              res2.on('data', c => chunks.push(c));
+              res2.on('end', () => resolve(Buffer.concat(chunks)));
+            }).on('error', reject);
+            return;
+          }
+          const chunks = [];
+          res.on('data', c => chunks.push(c));
+          res.on('end', () => resolve(Buffer.concat(chunks)));
+        }).on('error', reject);
+      });
+    } else {
+      return { ok: false, msg: '❌ Formato de imagem inválido.' };
     }
 
-    const buffer = await requestBuffer(url);
+    let img = sharp(inputBuffer);
+    const meta = await img.metadata();
+    const w = meta.width || 800;
+    const h = meta.height || 600;
 
-    if (!buffer || buffer.length === 0) {
-      return { ok: false, msg: '❌ Resposta não é uma imagem válida.' };
+    let buffer;
+
+    switch (type) {
+      case 'blackwhite': {
+        buffer = await sharp(inputBuffer)
+          .grayscale()
+          .toBuffer();
+        break;
+      }
+
+      case 'desfoque': {
+        buffer = await sharp(inputBuffer)
+          .blur(8)
+          .toBuffer();
+        break;
+      }
+
+      case 'cinema': {
+        const barH = Math.round(h * 0.12);
+        const blackBar = Buffer.alloc(w * barH * 3, 0);
+        const topBar = sharp(blackBar, { raw: { width: w, height: barH, channels: 3 } }).png();
+        const botBar = sharp(blackBar, { raw: { width: w, height: barH, channels: 3 } }).png();
+
+        buffer = await sharp(inputBuffer)
+          .composite([
+            { input: await topBar.toBuffer(), top: 0, left: 0 },
+            { input: await botBar.toBuffer(), top: h - barH, left: 0 }
+          ])
+          .toBuffer();
+        break;
+      }
+
+      case 'jornal': {
+        buffer = await sharp(inputBuffer)
+          .grayscale()
+          .normalise()
+          .sharpen({ sigma: 1.5 })
+          .modulate({ brightness: 1.05, saturation: 0 })
+          .toBuffer();
+        break;
+      }
+
+      case 'wojakreaction': {
+        buffer = await sharp(inputBuffer)
+          .modulate({ brightness: 0.85, saturation: 0.5 })
+          .blur(1)
+          .toBuffer();
+        break;
+      }
+
+      default:
+        return { ok: false, msg: `❌ Tipo de edição desconhecido: ${type}` };
     }
 
-    const response = { buffer };
-
-    setCache(cacheKey, response);
-
-    return { ok: true, ...response };
+    return { ok: true, buffer };
 
   } catch (err) {
-    return { ok: false, msg: `❌ Erro ao gerar o logo: ${err.message}` };
+    console.error('[edits] Erro:', err.message);
+    return { ok: false, msg: `❌ Erro ao aplicar efeito: ${err.message}` };
   }
 }
 
