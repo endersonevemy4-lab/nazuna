@@ -1,0 +1,9 @@
+node_modules/
+package-lock.json
+yarn.lock
+.env
+dados/database/qr-code/
+temp/
+logs/
+cache/
+dados/backup/
