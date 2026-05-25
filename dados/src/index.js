@@ -23298,23 +23298,17 @@ ${prefix}togglecmdvip premium_ia off`);
 
           var foto1 = isQuotedImage ? info.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage : {};
 
-          await reply('⏳ Enviando imagem e gerando edição... ☀️');
+          await reply('⏳ Aplicando efeito... ☀️');
           let media = await getFileBuffer(foto1, "image");
 
           if (!media) {
             return reply('❌ Falha ao obter a mídia.');
           }
-          let linkz = await upload(media);
-
-          if (!linkz) {
-            return reply('❌ Falha ao fazer upload da imagem.');
-          }
 
           const resultado = await edits.geraredit({
-            query: linkz,
+            query: media,
             type: command
           });
-
           if (!resultado) {
             return reply('❌ Erro desconhecido.');
           }
