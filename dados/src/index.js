@@ -29007,7 +29007,7 @@ Use ${prefix}inventario para ver seus itens!`);
       // FREE FIRE - Likes e Info
       // ═══════════════════════════════════════════════════════════════
       case 'likeff': {
-        const { freefire } = modules;
+        const freefire = modules.freefire;
         if (!freefire) return reply('❌ Serviço Free Fire indisponível.');
         const uid = q?.trim();
         if (!uid) return reply(`🎮 *Like FF*
@@ -29045,7 +29045,7 @@ Ex: ${prefix}likeff 123456789`);
       }
 
       case 'infoff': {
-        const { freefire } = modules;
+        const freefire = modules.freefire;
         if (!freefire) return reply('❌ Serviço Free Fire indisponível.');
         const uid = q?.trim();
         if (!uid) return reply(`🎮 *Info FF*
