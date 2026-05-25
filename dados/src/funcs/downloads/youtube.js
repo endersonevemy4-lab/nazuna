@@ -130,8 +130,15 @@ async function mp4(url) {
       return { ok: false, msg: '⚠️ Vídeo muito longo. Máximo de 10 minutos para vídeo.' }
     }
 
+    const rawFile = `${tmpOutput}_raw.mp4`
+
     await execAsync(
-      `${ytdlp} -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4 --no-playlist -o "${mp4File}" "${url}"`,
+      `${ytdlp} -f "best[ext=mp4]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best" --merge-output-format mp4 --no-playlist -o "${rawFile}" "${url}"`,
+      { maxBuffer: 200 * 1024 * 1024 }
+    )
+
+    await execAsync(
+      `ffmpeg -i "${rawFile}" -c:v libx264 -preset fast -crf 28 -c:a aac -b:a 128k -movflags +faststart -y "${mp4File}"`,
       { maxBuffer: 200 * 1024 * 1024 }
     )
 
@@ -149,6 +156,7 @@ async function mp4(url) {
     return { ok: false, msg: err.message }
   } finally {
     try { fs.unlinkSync(mp4File) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}_raw.mp4`) } catch {}
     try { fs.unlinkSync(`${tmpOutput}.webm`) } catch {}
     try { fs.unlinkSync(`${tmpOutput}.mkv`) } catch {}
   }
