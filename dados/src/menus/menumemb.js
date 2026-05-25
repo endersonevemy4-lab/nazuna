@@ -10,7 +10,6 @@ export default async function menuMembros(prefix, botName = "MeuBot", userName =
     botStatusMenuTitle = "🤖 STATUS DO BOT",
     personalMenuTitle = "⚙️ CONFIGURAÇÕES PESSOAIS",
     rankMenuTitle = "🏆 RANKINGS & GAMIFICAÇÃO",
-    gamingMenuTitle = "🎮 CONTEÚDO GAMER"
 } = {}) {
     const formattedHeader = header.replace(/#user#/g, userName);
     return `${formattedHeader}
@@ -73,12 +72,6 @@ ${middleBorder}${menuItemIcon}${prefix}rep @user
 ${middleBorder}${menuItemIcon}${prefix}toprep
 ${middleBorder}${menuItemIcon}${prefix}denunciar @user <motivo>
 ${middleBorder}${menuItemIcon}${prefix}denuncias
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${gamingMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}likeff
-${middleBorder}${menuItemIcon}${prefix}infoff
 ${bottomBorder}
 `;
 }
