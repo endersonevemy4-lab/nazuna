@@ -16,7 +16,6 @@ const menuModules = {
     menuadm: './menuadm.js',
     menubn: './menubn.js',
     menuLogos: './menulogo.js', 
-    menuedits: './menuedits.js', 
     menuDono: './menudono.js',
     menuMembros: './menumemb.js',
     menuFerramentas: './ferramentas.js',
