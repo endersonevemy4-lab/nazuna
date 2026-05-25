@@ -110,6 +110,7 @@ async function mp3(url) {
 
 async function mp4(url) {
   const tmpOutput = join(tmpdir(), `nazu_video_${Date.now()}`)
+  const mp4File = `${tmpOutput}.mp4`
 
   try {
     const ytdlp = await getYtDlpPath()
@@ -125,11 +126,10 @@ async function mp4(url) {
     }
 
     await execAsync(
-      `${ytdlp} -f "best[ext=mp4]/best" --no-playlist -o "${tmpOutput}.%(ext)s" "${url}"`,
-      { maxBuffer: 100 * 1024 * 1024 }
+      `${ytdlp} -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4 --no-playlist -o "${mp4File}" "${url}"`,
+      { maxBuffer: 200 * 1024 * 1024 }
     )
 
-    const mp4File = `${tmpOutput}.mp4`
     const buffer = fs.readFileSync(mp4File)
     const title = info.title || 'YouTube Video'
 
@@ -143,8 +143,9 @@ async function mp4(url) {
   } catch (err) {
     return { ok: false, msg: err.message }
   } finally {
-    try { fs.unlinkSync(`${tmpOutput}.mp4`) } catch {}
+    try { fs.unlinkSync(mp4File) } catch {}
     try { fs.unlinkSync(`${tmpOutput}.webm`) } catch {}
+    try { fs.unlinkSync(`${tmpOutput}.mkv`) } catch {}
   }
 }
 
