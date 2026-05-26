@@ -22828,7 +22828,6 @@ ${prefix}togglecmdvip premium_ia off`);
         break;
 
       //COMANDOS DE LOGOS
-      case 'amongus':
       case 'royal':
       case 'mascotemetal':
       case 'firework':
