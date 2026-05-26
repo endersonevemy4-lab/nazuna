@@ -1,0 +1,26 @@
+name: IA Autocommit Bot
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codigo
+        uses: actions/checkout@v4
+
+      - name: Simular Gerador de Codigo
+        run: |
+          echo "Processando o comando enviado na Issue..."
+          echo "# Criado pela IA de forma automatica" > script_ia.py
+          echo "print('Ola Mundo! Esse codigo foi gerado sozinho.')" >> script_ia.py
+          
+      - name: Commit e Push Automatico
+        run: |
+          git config --global user.name "IA-Bot"
+          git config --global user.email "ia-bot@github.com"
+          git add .
+          git commit -m "Codigo updated pela IA [skip ci]"
+          git push
+          
