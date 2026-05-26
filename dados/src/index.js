@@ -465,6 +465,7 @@ const {
   logos,
   edits,
   Logos2,
+  gerarAmongUs,
   emojiMix,
   upload,
   mcPlugin,
@@ -22889,13 +22890,37 @@ ${prefix}togglecmdvip premium_ia off`);
           await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
         }
         break;
+      case 'amongus':
+        try {
+          const [textoAU1, textoAU2] = q.split('/').map(i => i.trim());
+          if (!textoAU1 || !textoAU2) return reply(`❌ Cadê os textos?\nExemplo: ${prefix + command} Nazuna/Bot`);
+
+          await reply(`⏳ Gerando logotipo *Among Us*... aguarde! ☀️`);
+
+          if (!gerarAmongUs) return reply('❌ Gerador Among Us não disponível.');
+
+          const resultadoAU = await gerarAmongUs(textoAU1, textoAU2);
+
+          if (resultadoAU.success) {
+            await nazu.sendMessage(from, {
+              image: resultadoAU.buffer,
+              caption: `✅ *Logotipo Among Us gerado com sucesso!*`
+            }, { quoted: info });
+          } else {
+            await reply(`❌ Erro ao gerar logotipo: ${resultadoAU.error}`);
+          }
+        } catch (e) {
+          console.error('Erro no comando amongus:', e);
+          await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
+        }
+        break;
+
       case 'avengers':
       case 'graffiti':
       case 'captainamerica':
       case 'stone3d':
       case 'neon2':
       case 'thor':
-      case 'amongus':
       case 'deadpool':
       case 'blackpink':
         try {

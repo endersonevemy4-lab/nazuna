@@ -147,6 +147,7 @@ async function loadModules() {
             searchMod,
             imagetoolsMod,
             freefireMod,
+            amongusMod,
         ] = await Promise.all([
             import('./utils/gerarnick.js'),
             import('./utils/logotipos.js'),
@@ -176,6 +177,7 @@ async function loadModules() {
             import('./utils/search.js'),
             import('./utils/imagetools.js'),
             import('./utils/freefire.js'),
+            import('./utils/amongus_local.js'),
         ]);
 
         // Utils modules with null checking
@@ -210,6 +212,7 @@ async function loadModules() {
         modules.search = searchMod.default ?? searchMod;
         modules.imagetools = imagetoolsMod.default ?? imagetoolsMod;
         modules.freefire = freefireMod.default ?? freefireMod;
+        modules.gerarAmongUs = amongusMod.gerarAmongUs ?? amongusMod.default?.gerarAmongUs ?? null;
 
         // expose sendSticker directly (preserving previous API shape) with null check
         if (modules.stickerModule && modules.stickerModule.sendSticker) {
