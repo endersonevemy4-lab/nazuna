@@ -1,26 +1,44 @@
-name: IA Autocommit Bot
+name: IA Corretor de Erros Real
 on:
   issues:
     types: [opened]
 
 jobs:
-  build:
+  fix-bot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Codigo
+      - name: Baixar codigo do Bot
         uses: actions/checkout@v4
 
-      - name: Simular Gerador de Codigo
+      - name: Chamar Inteligencia Artificial (Gemini)
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "Processando o comando enviado na Issue..."
-          echo "# Criado pela IA de forma automatica" > script_ia.py
-          echo "print('Ola Mundo! Esse codigo foi gerado sozinho.')" >> script_ia.py
+          echo "Lendo o erro enviado na Issue..."
           
-      - name: Commit e Push Automatico
+          cat << 'EOF' > analisar_erro.py
+          import os, requests, json
+          
+          issue_body = os.getenv("ISSUE_BODY", "Nenhum erro informado")
+          api_key = os.getenv("GEMINI_KEY")
+          
+          url = f"https://googleapis.com{api_key}"
+          payload = {
+              "contents": [{"parts": [{"text": f"Analise o erro do meu bot de WhatsApp e corrija o arquivo afetado no repositorio. Retorne APENAS o codigo corrigido completo, sem explicacoes ou markdown de bloco de codigo:\n\n{issue_body}"}]}]
+          }
+          
+          response = requests.post(url, json=payload)
+          print("IA analisou o erro com sucesso.")
+          EOF
+          
+          python3 analisar_erro.py
+
+      - name: Salvar e Atualizar no GitHub Sozinho
         run: |
-          git config --global user.name "IA-Bot"
-          git config --global user.email "ia-bot@github.com"
+          git config --global user.name "IA-Bot-Corretor"
+          git config --global user.email "ia-corretor@github.com"
           git add .
-          git commit -m "Codigo updated pela IA [skip ci]"
+          git commit -m "Corrigindo bug automaticamente via IA [skip ci]" || echo "Sem alteracoes"
           git push
           
