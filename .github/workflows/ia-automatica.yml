@@ -54,17 +54,15 @@ jobs:
           try:
               response = requests.post(url, json=payload)
               result = response.json()
-              text_response = result['candidates'][0]['content']['parts'][0]['text']
+              text_response = result['candidates']['content']['parts']['text']
               dados_ia = json.loads(text_response)
               
-              # Deletar arquivos solicitados pela IA
               if "arquivos_deletados" in dados_ia:
                   for arquivo in dados_ia["arquivos_deletados"]:
                       if os.path.exists(arquivo):
                           os.remove(arquivo)
                           print(f"Arquivo deletado: {arquivo}")
                           
-              # Salvar/Modificar arquivos solicitados pela IA
               if "arquivos_modificados" in dados_ia:
                   for arquivo, conteudo in dados_ia["arquivos_modificados"].items():
                       os.makedirs(os.path.dirname(arquivo), exist_ok=True)
