@@ -14,7 +14,6 @@ ${menuTopBorder}${separatorIcon} *MENU PRINCIPAL*
 ${middleBorder}
 ${middleBorder}${menuItemIcon}${prefix}menuia
 ${middleBorder}${menuItemIcon}${prefix}menudown
-${middleBorder}${menuItemIcon}${prefix}menuedits
 ${middleBorder}${menuItemIcon}${prefix}menuadm
 ${middleBorder}${menuItemIcon}${prefix}menubn
 ${middleBorder}${menuItemIcon}${prefix}menudono

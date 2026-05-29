@@ -1441,7 +1441,6 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     menuSticker,
     menuIa,
     menuAlterador,
-    menuedits,
     menuTopCmd,
     menuRPG,
     menuVIP,
@@ -20284,16 +20283,6 @@ Se não definir cores, a API usa padrão automaticamente.`
         break;
 
 
-
-      case 'edits':
-      case 'menuedits':
-        try {
-          await sendMenuWithMedia('menuedits', menuedits);
-        } catch (error) {
-          console.error('Erro ao enviar menu de Logos:', error);
-          await reply("❌ Ocorreu um erro ao carregar o menu de Logos");
-        }
-        break;
 
 
 
