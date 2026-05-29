@@ -21719,8 +21719,7 @@ case 'addcmd-subdono':
     const cmdToAdd = q?.toLowerCase().trim();
     if (!cmdToAdd) {
       return reply(
-        '❌ Informe o comando a adicionar!
-Ex.: ' +
+        '❌ Informe o comando a adicionar!\nEx.: ' +
         prefix + 'addcmd-subdono play'
       );
     }
@@ -21747,8 +21746,7 @@ Ex.: ' +
     const cmdToRemove = q?.toLowerCase().trim();
     if (!cmdToRemove) {
       return reply(
-        '❌ Informe o comando a remover!
-Ex.: ' +
+        '❌ Informe o comando a remover!\nEx.: ' +
         prefix + 'removecmd-subdono play'
       );
     }
@@ -21783,8 +21781,7 @@ Ex.: ' +
     let txt = `📜 *Comandos liberados para subdonos:*
 
 `;
-    txt += subOwnerCommands.map((cmd, i) => `${i + 1}. ${prefix}${cmd}`).join('
-');
+    txt += subOwnerCommands.map((cmd, i) => `${i + 1}. ${prefix}${cmd}`).join('\n');
     await reply(txt);
   } catch (e) {
     console.error(e);
@@ -27269,8 +27266,7 @@ Exemplos:
 📝 Para configurar a mensagem, use: *${prefixo}legendabv2*
 *Esse bem vindo não tem foto!*`);
           } else {
-            await reply('⚠️ *Boas-vindas desativadas!* O grupo não enviará mais mensagens para novos membros.
-*Esse bem vindo não tem foto!*');
+            await reply('⚠️ *Boas-vindas desativadas!* O grupo não enviará mais mensagens para novos membros.\n*Esse bem vindo não tem foto!*');
           }
         } catch (e) {
           console.error(e);
