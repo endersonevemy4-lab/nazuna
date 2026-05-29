@@ -41,6 +41,7 @@ ${middleBorder}${menuItemIcon}${prefix}roles
 ${middleBorder}${menuItemIcon}${prefix}role.vou
 ${middleBorder}${menuItemIcon}${prefix}role.nvou
 ${middleBorder}${menuItemIcon}${prefix}role.confirmados
+${middleBorder}${menuItemIcon}${prefix}transcrever
 ${bottomBorder}
 
 ${menuTopBorder}${separatorIcon} *${rankMenuTitle}*
