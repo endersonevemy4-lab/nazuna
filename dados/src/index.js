@@ -19981,21 +19981,103 @@ case 'pin':
       case 'character':
       case 'animepersonagem':
         try {
-          if (!q) return reply(`👤 *Buscar Personagem*\n\n❌ Digite o nome do personagem.\n\n📝 Uso: ${prefix}personagem <nome>\n📌 Exemplo: ${prefix}personagem Naruto`);
-          await reply(`👤 Buscando personagem *${q}*...`);
-          const r = await axios.get(`https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`, { timeout: 10000 });
-          const p = r.data?.data?.[0];
-          if (!p) return reply(`❌ Nenhum personagem encontrado para "*${q}*".`);
-          const animes = p.anime?.slice(0,3).map(a => a.anime?.title).filter(Boolean).join(', ') || 'N/A';
-          const about = p.about ? p.about.replace(/\\n/g,' ').substring(0, 400) + (p.about.length > 400 ? '...' : '') : 'Sem descrição.';
+          if (!q) return reply(`👤 *Buscar Personagem*\n\n❌ Digite o nome do personagem.\n\n📝 Uso: ${prefix}personagem <nome>\n📌 Exemplos:\n• ${prefix}personagem Madara\n• ${prefix}personagem Madara de Naruto Shippuden`);
+
+          // Detecta padrão "[personagem] de [anime]" ou "do/da/dos/das [anime]"
+          const deMatch = q.match(/^(.+?)\s+d(?:e|o|a|os|as)\s+(.+)$/i);
+          let charName = q.trim();
+          let animeName = null;
+
+          if (deMatch) {
+            charName = deMatch[1].trim();
+            animeName = deMatch[2].trim();
+          }
+
+          await reply(`👤 Buscando personagem *${charName}${animeName ? ` de ${animeName}` : ''}*...`);
+
+          let found = null;
+
+          // Estratégia 1: se tem nome do anime, busca anime → personagens do anime → filtra por nome
+          if (animeName) {
+            try {
+              const animeRes = await axios.get(
+                `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(animeName)}&limit=1`,
+                { timeout: 10000 }
+              );
+              const anime = animeRes.data?.data?.[0];
+
+              if (anime?.mal_id) {
+                const charRes = await axios.get(
+                  `https://api.jikan.moe/v4/anime/${anime.mal_id}/characters`,
+                  { timeout: 10000 }
+                );
+                const chars = charRes.data?.data || [];
+                const nameLower = charName.toLowerCase();
+
+                // Tenta match exato primeiro, depois parcial
+                found = chars.find(c => c.character?.name?.toLowerCase() === nameLower)
+                     || chars.find(c => c.character?.name?.toLowerCase().includes(nameLower))
+                     || chars.find(c => c.character?.name?.toLowerCase().split(',').some(p => p.trim() === nameLower));
+
+                if (found) {
+                  // Busca detalhes completos do personagem
+                  const detRes = await axios.get(
+                    `https://api.jikan.moe/v4/characters/${found.character.mal_id}/full`,
+                    { timeout: 10000 }
+                  );
+                  found = detRes.data?.data || found.character;
+                }
+              }
+            } catch (_) { /* fallback para busca direta */ }
+          }
+
+          // Estratégia 2: busca direta por nome do personagem (fallback ou sem anime)
+          if (!found) {
+            const r = await axios.get(
+              `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(charName)}&limit=5`,
+              { timeout: 10000 }
+            );
+            const results = r.data?.data || [];
+
+            if (animeName) {
+              // Prioriza personagem que aparece no anime informado
+              const anLower = animeName.toLowerCase();
+              found = results.find(p =>
+                p.anime?.some(a => a.anime?.title?.toLowerCase().includes(anLower))
+              ) || results[0];
+            } else {
+              found = results[0];
+            }
+
+            // Busca detalhes completos
+            if (found?.mal_id) {
+              const detRes = await axios.get(
+                `https://api.jikan.moe/v4/characters/${found.mal_id}/full`,
+                { timeout: 10000 }
+              ).catch(() => null);
+              if (detRes?.data?.data) found = detRes.data.data;
+            }
+          }
+
+          if (!found) return reply(`❌ Nenhum personagem encontrado para "*${charName}*"${animeName ? ` em *${animeName}*` : ''}.`);
+
+          const animes = found.anime?.slice(0,4).map(a => a.anime?.title).filter(Boolean).join(', ') || 'N/A';
+          const voices = found.voices?.slice(0,3).map(v => `${v.person?.name} (${v.language})`).filter(Boolean).join(', ') || 'N/A';
+          const about = found.about
+            ? found.about.replace(/\n/g,' ').replace(/\s+/g,' ').trim().substring(0, 500) + (found.about.length > 500 ? '...' : '')
+            : 'Sem descrição.';
+
           let txt = `⛩️ *FICHA DO PERSONAGEM*\n\n`;
-          txt += `👤 *${p.name}*\n`;
-          if (p.name_kanji) txt += `🈶 ${p.name_kanji}\n`;
-          txt += `\n❤️ Favoritos MAL: ${p.favorites?.toLocaleString('pt-BR') || 'N/A'}\n`;
+          txt += `👤 *${found.name}*\n`;
+          if (found.name_kanji) txt += `🈶 ${found.name_kanji}\n`;
+          txt += `\n❤️ Favoritos MAL: ${found.favorites?.toLocaleString('pt-BR') || 'N/A'}\n`;
           txt += `📺 Aparece em: ${animes}\n`;
+          if (voices !== 'N/A') txt += `🎙️ Dubladores: ${voices}\n`;
           txt += `\n📝 *Sobre:*\n${about}`;
-          if (p.images?.jpg?.image_url) {
-            await nazu.sendMessage(from, { image: { url: p.images.jpg.image_url }, caption: txt }, { quoted: info });
+
+          const imgUrl = found.images?.jpg?.image_url || found.images?.webp?.image_url;
+          if (imgUrl) {
+            await nazu.sendMessage(from, { image: { url: imgUrl }, caption: txt }, { quoted: info });
           } else {
             await reply(txt);
           }
