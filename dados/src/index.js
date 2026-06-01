@@ -20089,22 +20089,66 @@ case 'pin':
 
       case 'fraseanime':
       case 'quoteanime':
-      case 'fraseotaku':
+      case 'fraseotaku': {
+        // Frases famosas de anime (fallback local)
+        const _animeQuotes = [
+          { content: 'A dor permite que as pessoas cresçam. Quando as pessoas sofrem, elas pensam. Aprenda com a dor e pense.', char: 'Pain', anime: 'Naruto Shippuden' },
+          { content: 'Eu não quero conquistar nada. Só quero viver.', char: 'Monkey D. Luffy', anime: 'One Piece' },
+          { content: 'Independente da situação, nunca abandone sua determinação.', char: 'Itachi Uchiha', anime: 'Naruto' },
+          { content: 'Se você não se arrisca, não pode criar um futuro.', char: 'Monkey D. Luffy', anime: 'One Piece' },
+          { content: 'Não importa quantas vezes você caia, levante-se. Enquanto você estiver vivo, há razão para lutar.', char: 'Natsu Dragneel', anime: 'Fairy Tail' },
+          { content: 'Um homem que não usa sua inteligência é apenas um animal.', char: 'Lelouch vi Britannia', anime: 'Code Geass' },
+          { content: 'Se você não pode fazer algo pequeno, como você pretende fazer algo grande?', char: 'Uchiha Itachi', anime: 'Naruto' },
+          { content: 'Quando você perde, você não luta. Quando você luta, você não perde.', char: 'Erza Scarlet', anime: 'Fairy Tail' },
+          { content: 'O futuro pertence àqueles que acreditam na beleza de seus sonhos.', char: 'Shoyo Hinata', anime: 'Haikyuu!!' },
+          { content: 'Pessoas que continuam lutando, mesmo sabendo que vão perder, têm verdadeiro poder.', char: 'Roronoa Zoro', anime: 'One Piece' },
+          { content: 'A vida não é sobre esperar a tempestade passar. É sobre aprender a dançar na chuva.', char: 'Violet Evergarden', anime: 'Violet Evergarden' },
+          { content: 'Quanto mais você odeia alguém, mais você se torna como eles.', char: 'Shikamaru Nara', anime: 'Naruto' },
+          { content: 'Não existe caminho para a felicidade. A felicidade é o caminho.', char: 'Edward Elric', anime: 'Fullmetal Alchemist' },
+          { content: 'Desistir quando está cansado é fraqueza. Desistir quando está derrotado é covardia.', char: 'Rock Lee', anime: 'Naruto' },
+          { content: 'Mesmo se eu for o único que acredita em você, eu sempre acreditarei.', char: 'Naruto Uzumaki', anime: 'Naruto' },
+        ];
+
         try {
           await reply('💬 Buscando uma frase marcante...');
-          const r = await axios.get('https://animechan.io/api/v1/quotes/random', { timeout: 10000 });
-          const q2 = r.data?.data;
-          if (!q2) return reply('❌ Não foi possível buscar uma frase. Tente novamente.');
+
+          let quoteData = null;
+
+          // Tenta animechan v2
+          try {
+            const r1 = await axios.get('https://animechan.io/api/v1/quotes/random', { timeout: 6000 });
+            const d = r1.data?.data;
+            if (d?.content) quoteData = { content: d.content, char: d.character?.name, anime: d.anime?.name };
+          } catch (_) {}
+
+          // Tenta animechan vercel (alternativo)
+          if (!quoteData) {
+            try {
+              const r2 = await axios.get('https://animechan.vercel.app/api/random', { timeout: 6000 });
+              const d = r2.data;
+              if (d?.quote) quoteData = { content: d.quote, char: d.character, anime: d.anime };
+            } catch (_) {}
+          }
+
+          // Fallback local
+          if (!quoteData) {
+            const local = _animeQuotes[Math.floor(Math.random() * _animeQuotes.length)];
+            quoteData = { content: local.content, char: local.char, anime: local.anime };
+          }
+
           let txt = `💬 *FRASE DE ANIME*\n\n`;
-          txt += `_"${q2.content}"_\n\n`;
-          txt += `👤 *${q2.character?.name || 'Desconhecido'}*\n`;
-          txt += `📺 ${q2.anime?.name || 'Desconhecido'}`;
+          txt += `_"${quoteData.content}"_\n\n`;
+          txt += `👤 *${quoteData.char || 'Desconhecido'}*\n`;
+          txt += `📺 ${quoteData.anime || 'Desconhecido'}`;
           await reply(txt);
         } catch (e) {
           console.error('Erro no comando fraseanime:', e);
-          reply('❌ Ocorreu um erro ao buscar a frase. Tente novamente.');
+          // Último recurso: frase local direta
+          const local = _animeQuotes[Math.floor(Math.random() * _animeQuotes.length)];
+          await reply(`💬 *FRASE DE ANIME*\n\n_"${local.content}"_\n\n👤 *${local.char}*\n📺 ${local.anime}`);
         }
         break;
+      }
 
       case 'animenews':
       case 'noticiaanime':
