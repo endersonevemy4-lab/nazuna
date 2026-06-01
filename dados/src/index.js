@@ -1445,7 +1445,8 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     menuRPG,
     menuVIP,
     menuBuscas,
-    menuBrawlStars
+    menuBrawlStars,
+    menuotaku
   } = menus;
   const prefix = prefixo;
   const numerodonoStr = String(numerodono);
@@ -19880,6 +19881,170 @@ case 'pin':
           reply('❌ Ocorreu um erro na pesquisa. Tente novamente.');
         }
         break;
+      case 'anime':
+      case 'animealeatório':
+      case 'animerandom':
+        try {
+          await reply('🎲 Buscando um anime aleatório...');
+          const r = await axios.get('https://api.jikan.moe/v4/random/anime', { timeout: 10000 });
+          const a = r.data?.data;
+          if (!a) return reply('❌ Não foi possível buscar um anime. Tente novamente.');
+          const genres = a.genres?.map(g => g.name).join(', ') || 'N/A';
+          const studios = a.studios?.map(s => s.name).join(', ') || 'N/A';
+          const score = a.score ? `⭐ ${a.score}/10` : '⭐ Sem nota';
+          const eps = a.episodes ? `${a.episodes} eps` : 'Em andamento';
+          const status = a.status || 'N/A';
+          const synopsis = a.synopsis ? a.synopsis.substring(0, 300) + (a.synopsis.length > 300 ? '...' : '') : 'Sem sinopse.';
+          const crunchyroll = `https://www.crunchyroll.com/search?q=${encodeURIComponent(a.title)}`;
+          let txt = `⛩️ *ANIME ALEATÓRIO*\n\n`;
+          txt += `📺 *${a.title}*\n`;
+          if (a.title_english && a.title_english !== a.title) txt += `🔤 Inglês: ${a.title_english}\n`;
+          txt += `\n${score} | 📅 ${a.year || 'N/A'} | 🎬 ${eps}\n`;
+          txt += `📌 Status: ${status}\n`;
+          txt += `🎭 Gêneros: ${genres}\n`;
+          txt += `🏢 Estúdio: ${studios}\n`;
+          txt += `\n📝 *Sinopse:*\n${synopsis}\n`;
+          txt += `\n🎬 Crunchyroll: ${crunchyroll}`;
+          if (a.images?.jpg?.large_image_url) {
+            await nazu.sendMessage(from, { image: { url: a.images.jpg.large_image_url }, caption: txt }, { quoted: info });
+          } else {
+            await reply(txt);
+          }
+        } catch (e) {
+          console.error('Erro no comando anime:', e);
+          reply('❌ Ocorreu um erro ao buscar o anime. Tente novamente.');
+        }
+        break;
+
+      case 'buscaranime':
+      case 'searchanime':
+      case 'pesquisaranime':
+        try {
+          if (!q) return reply(`🔍 *Buscar Anime*\n\n❌ Digite o nome do anime.\n\n📝 Uso: ${prefix}buscaranime <nome>\n📌 Exemplo: ${prefix}buscaranime Naruto`);
+          await reply(`🔍 Buscando *${q}*...`);
+          const r = await axios.get(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=1`, { timeout: 10000 });
+          const a = r.data?.data?.[0];
+          if (!a) return reply(`❌ Nenhum anime encontrado para "*${q}*".`);
+          const genres = a.genres?.map(g => g.name).join(', ') || 'N/A';
+          const studios = a.studios?.map(s => s.name).join(', ') || 'N/A';
+          const score = a.score ? `⭐ ${a.score}/10` : '⭐ Sem nota';
+          const rank = a.rank ? `#${a.rank}` : 'N/A';
+          const eps = a.episodes ? `${a.episodes} episódios` : 'Em andamento';
+          const synopsis = a.synopsis ? a.synopsis.substring(0, 400) + (a.synopsis.length > 400 ? '...' : '') : 'Sem sinopse.';
+          const crunchyroll = `https://www.crunchyroll.com/search?q=${encodeURIComponent(a.title)}`;
+          let txt = `⛩️ *DETALHES DO ANIME*\n\n`;
+          txt += `📺 *${a.title}*\n`;
+          if (a.title_english && a.title_english !== a.title) txt += `🔤 ${a.title_english}\n`;
+          txt += `\n${score} | 🏆 Rank: ${rank}\n`;
+          txt += `📅 Ano: ${a.year || 'N/A'} | 🎬 ${eps}\n`;
+          txt += `📌 Status: ${a.status || 'N/A'}\n`;
+          txt += `🎭 Gêneros: ${genres}\n`;
+          txt += `🏢 Estúdio: ${studios}\n`;
+          txt += `👥 Membros MAL: ${a.members?.toLocaleString('pt-BR') || 'N/A'}\n`;
+          txt += `\n📝 *Sinopse:*\n${synopsis}\n`;
+          txt += `\n🎬 Crunchyroll: ${crunchyroll}`;
+          if (a.images?.jpg?.large_image_url) {
+            await nazu.sendMessage(from, { image: { url: a.images.jpg.large_image_url }, caption: txt }, { quoted: info });
+          } else {
+            await reply(txt);
+          }
+        } catch (e) {
+          console.error('Erro no comando buscaranime:', e);
+          reply('❌ Ocorreu um erro ao buscar o anime. Tente novamente.');
+        }
+        break;
+
+      case 'topanimes':
+      case 'topanime':
+      case 'rankinganime':
+        try {
+          await reply('🏆 Buscando o ranking dos melhores animes...');
+          const r = await axios.get('https://api.jikan.moe/v4/top/anime?limit=5', { timeout: 10000 });
+          const list = r.data?.data;
+          if (!list?.length) return reply('❌ Não foi possível buscar o ranking. Tente novamente.');
+          let txt = `⛩️ *TOP 5 MELHORES ANIMES* 🏆\n\n`;
+          list.forEach((a, i) => {
+            const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+            txt += `${medals[i]} *${a.title}*\n`;
+            txt += `   ⭐ ${a.score || 'N/A'} | 📅 ${a.year || 'N/A'} | 🎬 ${a.episodes || '?'} eps\n`;
+            txt += `   🎭 ${a.genres?.map(g=>g.name).slice(0,3).join(', ') || 'N/A'}\n\n`;
+          });
+          txt += `🔗 Fonte: myanimelist.net`;
+          await reply(txt);
+        } catch (e) {
+          console.error('Erro no comando topanimes:', e);
+          reply('❌ Ocorreu um erro ao buscar o ranking. Tente novamente.');
+        }
+        break;
+
+      case 'personagem':
+      case 'character':
+      case 'animepersonagem':
+        try {
+          if (!q) return reply(`👤 *Buscar Personagem*\n\n❌ Digite o nome do personagem.\n\n📝 Uso: ${prefix}personagem <nome>\n📌 Exemplo: ${prefix}personagem Naruto`);
+          await reply(`👤 Buscando personagem *${q}*...`);
+          const r = await axios.get(`https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`, { timeout: 10000 });
+          const p = r.data?.data?.[0];
+          if (!p) return reply(`❌ Nenhum personagem encontrado para "*${q}*".`);
+          const animes = p.anime?.slice(0,3).map(a => a.anime?.title).filter(Boolean).join(', ') || 'N/A';
+          const about = p.about ? p.about.replace(/\\n/g,' ').substring(0, 400) + (p.about.length > 400 ? '...' : '') : 'Sem descrição.';
+          let txt = `⛩️ *FICHA DO PERSONAGEM*\n\n`;
+          txt += `👤 *${p.name}*\n`;
+          if (p.name_kanji) txt += `🈶 ${p.name_kanji}\n`;
+          txt += `\n❤️ Favoritos MAL: ${p.favorites?.toLocaleString('pt-BR') || 'N/A'}\n`;
+          txt += `📺 Aparece em: ${animes}\n`;
+          txt += `\n📝 *Sobre:*\n${about}`;
+          if (p.images?.jpg?.image_url) {
+            await nazu.sendMessage(from, { image: { url: p.images.jpg.image_url }, caption: txt }, { quoted: info });
+          } else {
+            await reply(txt);
+          }
+        } catch (e) {
+          console.error('Erro no comando personagem:', e);
+          reply('❌ Ocorreu um erro ao buscar o personagem. Tente novamente.');
+        }
+        break;
+
+      case 'fraseanime':
+      case 'quoteanime':
+      case 'fraseotaku':
+        try {
+          await reply('💬 Buscando uma frase marcante...');
+          const r = await axios.get('https://animechan.io/api/v1/quotes/random', { timeout: 10000 });
+          const q2 = r.data?.data;
+          if (!q2) return reply('❌ Não foi possível buscar uma frase. Tente novamente.');
+          let txt = `💬 *FRASE DE ANIME*\n\n`;
+          txt += `_"${q2.content}"_\n\n`;
+          txt += `👤 *${q2.character?.name || 'Desconhecido'}*\n`;
+          txt += `📺 ${q2.anime?.name || 'Desconhecido'}`;
+          await reply(txt);
+        } catch (e) {
+          console.error('Erro no comando fraseanime:', e);
+          reply('❌ Ocorreu um erro ao buscar a frase. Tente novamente.');
+        }
+        break;
+
+      case 'animenews':
+      case 'noticiaanime':
+      case 'noticiaotaku':
+        try {
+          await reply('📰 Buscando novidades do mundo otaku...');
+          const r = await axios.get('https://api.jikan.moe/v4/top/anime?filter=airing&limit=5', { timeout: 10000 });
+          const list = r.data?.data;
+          if (!list?.length) return reply('❌ Não foi possível buscar as novidades. Tente novamente.');
+          let txt = `📰 *ANIMES EM EXIBIÇÃO AGORA* ⛩️\n\n`;
+          list.forEach((a, i) => {
+            txt += `*${i+1}. ${a.title}*\n`;
+            txt += `   ⭐ ${a.score || 'N/A'} | 🎬 ${a.episodes || '?'} eps | 📅 ${a.season ? a.season.charAt(0).toUpperCase()+a.season.slice(1) : ''} ${a.year || ''}\n`;
+            txt += `   🎭 ${a.genres?.map(g=>g.name).slice(0,3).join(', ') || 'N/A'}\n\n`;
+          });
+          txt += `🔗 Fonte: myanimelist.net`;
+          await reply(txt);
+        } catch (e) {
+          console.error('Erro no comando animenews:', e);
+          reply('❌ Ocorreu um erro ao buscar as novidades. Tente novamente.');
+        }
+        break;
       case 'noticias':
       case 'news':
       case 'noticia':
@@ -20279,6 +20444,19 @@ Se não definir cores, a API usa padrão automaticamente.`
         } catch (error) {
           console.error('Erro ao enviar menu de IA:', error);
           await reply("❌ Ocorreu um erro ao carregar o menu de IA");
+        }
+        break;
+
+
+
+      case 'menuotaku':
+      case 'otaku':
+      case 'menuanime':
+        try {
+          await sendMenuWithMedia('otaku', menuotaku);
+        } catch (error) {
+          console.error('Erro ao enviar menu otaku:', error);
+          await reply('❌ Ocorreu um erro ao carregar o menu otaku');
         }
         break;
 
